@@ -1,12 +1,13 @@
 import os  
 import sys 
-from src.exception import CustomException 
+from src.exception import CustomException
 from src.logger import logging 
 import pandas as pd 
 from dataclasses import dataclass 
 from sklearn.model_selection import train_test_split 
 
 from src.components.data_transformation import DataTransformation
+from src.components.model_trainer import ModelTrainer
 
 
 @dataclass 
@@ -23,7 +24,7 @@ class DataIngestion:
         logging.info("Entered the data ingestion method or component")
 
         try:
-            df = pd.read_csv(r"C:\Users\hp\Files\DataScience\End-To-End Projects\ML_project\data\stud.csv")
+            df = pd.read_csv(r"data\stud.csv")
             os.makedirs(os.path.dirname(self.ingestion_config.train_data_path), exist_ok=True)
 
             df.to_csv(self.ingestion_config.raw_data_path, index=False , header=True)
@@ -51,3 +52,6 @@ if __name__ == "__main__":
 
     data_transformation = DataTransformation() 
     train_arr, test_arr,_ = data_transformation.initiate_data_transformation(train_data, test_data)
+
+    model_trainer = ModelTrainer() 
+    model_trainer.initiate_model_trainer(train_arr, test_arr)
