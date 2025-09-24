@@ -40,17 +40,47 @@ class ModelTrainer:
                 "Random Forest": RandomForestRegressor(),
                 "Decision Tree": DecisionTreeRegressor(),
                 "Gradient Boosting": GradientBoostingRegressor(),
-                "Linear Regression": LinearRegression(),
+                # "Linear Regression": LinearRegression(),
                 "K-Neighbors Classifier": KNeighborsRegressor(),
                 "AdaBoost Classifier": AdaBoostRegressor(),
             }
 
-            model_report:dict = evaluate_model(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test, models=models)
+            params = {
+                "Random Forest": {
+                    'n_estimators': [8,16,32,64,128,256]
+                },
+                "Decision Tree": {
+                    'criterion': ['squared_error', 'friedman_mse', 'absolute_error', 'poisson']
+                },
+                "Gradient Boosting": {
+                    'learning_rate':[.1,.01,.05,.001],
+                    'subsample':[0.6,0.7,0.75,0.8,0.85,0.9],
+                    'n_estimators':[8,16,32,64,128,256]
+                },
+                # "Linear Regression": {
+                #     # optional
+                #     'fit_intercept': [True, False]
+                # },
+                "K-Neighbors Classifier": {
+                    'n_neighbors': [3,5,7,9,11]
+                },
+                "AdaBoost Regressor": {
+                    'learning_rate':[.1,.01,0.5,.001],
+                    'n_estimators': [8,16,32,64,128,256],
+                    # 'loss': ['linear','square','exponential']
+                }
+            }
 
+
+            model_report:dict = evaluate_model(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test, models=models, params=params)
+            print("model_report", model_report )
             # get best model 
-            best_model_score = max(sorted(model_report.values()))
-            best_model_name = list(model_report.keys())[list(model_report.values()).index(best_model_score)]
-            best_model = models[best_model_name]
+            best_model_name = max(model_report, key = lambda x: model_report[x]["score"])
+            best_model_info = model_report[best_model_name]
+
+            best_model = best_model_info["model"]
+            best_model_score = best_model_info["score"]
+            best_params = best_model_info["params"]
 
             save_object(
                 file_path=self.model_trainer_config.trianed_model_file,
@@ -59,7 +89,7 @@ class ModelTrainer:
 
             predicted = best_model.predict(X_test)
             r2_score_ = r2_score(y_test, predicted)
-            logging.info(f"Best model found : {best_model_name} with r2 score: {r2_score_}")
+            logging.info(f"Best model found : {best_model_name} with r2 score: {r2_score_} and parameters: {best_params}")
             return r2_score_
 
 
