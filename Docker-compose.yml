@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    container_name: my_python_app
+    ports:
+      - "5000:5000"     # يربط بورت الحاوية مع جهازك
+    volumes:
+      - .:/app          # يخلي الكود من جهازك ينعكس مباشرة داخل الحاوية (مفيد للتطوير)
+    environment:
+      - ENV=development # مثال لمتغير بيئة
